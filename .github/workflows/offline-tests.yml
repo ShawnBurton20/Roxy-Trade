@@ -1,0 +1,30 @@
+name: Roxy offline tests (no trading)
+on:
+  push:
+    branches: [main, 'review/**']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check whether Build 17 source import is complete
+        id: source
+        shell: bash
+        run: |
+          if [[ -f orchestrator.mjs && -f tests/orchestrator.test.mjs && -f v1-execution-integrity.mjs ]]; then
+            echo 'ready=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'ready=false' >> "$GITHUB_OUTPUT"
+            echo 'Build 17 source import incomplete. Offline tests skipped, not passed.' >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Run offline tests (no secrets, no broker calls)
+        if: steps.source.outputs.ready == 'true'
+        run: node --test tests/*.test.mjs

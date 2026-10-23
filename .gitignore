@@ -1,0 +1,14 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*secret*
+*credentials*
+node_modules/
+.DS_Store
+coverage/
+*.log
+*.zip
