@@ -1,0 +1,24 @@
+name: Roxy offline tests (no trading)
+on:
+  push:
+    branches: [main, 'review/**']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Confirm trading engine sources are present
+        run: |
+          test -f orchestrator.mjs
+          test -f tests/orchestrator.test.mjs
+          test -f v1-execution-integrity.mjs
+      - name: Run offline tests (no secrets, no broker calls)
+        run: node --test tests/*.test.mjs
